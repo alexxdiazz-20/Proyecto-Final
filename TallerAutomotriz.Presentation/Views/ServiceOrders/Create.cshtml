@@ -1,0 +1,116 @@
+﻿@model TallerAutomotriz.Application.DTOs.CreateServiceOrderDto
+
+@{
+    ViewData["Title"] = "Create Service Order";
+}
+
+<h1>Create Service Order</h1>
+
+<h4>Service Order Information</h4>
+<hr />
+<div class="row">
+    <div class="col-md-8">
+        <form asp-action="Create">
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+            <div class="form-group mb-3">
+                <label asp-for="OrderDate" class="control-label"></label>
+                <input asp-for="OrderDate" class="form-control" type="date" value="@DateTime.Now.ToString("yyyy-MM-dd")" />
+                <span asp-validation-for="OrderDate" class="text-danger"></span>
+            </div>
+            <div class="form-group mb-3">
+                <label asp-for="Description" class="control-label"></label>
+                <textarea asp-for="Description" class="form-control" rows="3"></textarea>
+                <span asp-validation-for="Description" class="text-danger"></span>
+            </div>
+            <div class="form-group mb-3">
+                <label asp-for="VehicleId" class="control-label">Vehicle</label>
+                <select asp-for="VehicleId" class="form-control" asp-items="ViewBag.Vehicles"></select>
+                <span asp-validation-for="VehicleId" class="text-danger"></span>
+            </div>
+            <div class="form-group mb-3">
+                <label asp-for="MechanicId" class="control-label">Mechanic</label>
+                <select asp-for="MechanicId" class="form-control" asp-items="ViewBag.Mechanics"></select>
+                <span asp-validation-for="MechanicId" class="text-danger"></span>
+            </div>
+
+            <h4>Service Details</h4>
+            <div id="service-details">
+                <div class="service-detail-item row mb-3">
+                    <div class="col-md-5">
+                        <label class="control-label">Service</label>
+                        <select name="Details[0].ServiceId" class="form-control" asp-items="ViewBag.Services"></select>
+                    </div>
+                    <div class="col-md-2">
+                        <label class="control-label">Quantity</label>
+                        <input name="Details[0].Quantity" class="form-control" type="number" min="1" value="1" />
+                    </div>
+                    <div class="col-md-4">
+                        <label class="control-label">Notes</label>
+                        <input name="Details[0].Notes" class="form-control" />
+                    </div>
+                    <div class="col-md-1 d-flex align-items-end">
+                        <button type="button" class="btn btn-danger remove-service">X</button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="form-group mb-3">
+                <button type="button" id="add-service" class="btn btn-info">Add Service</button>
+            </div>
+
+            <div class="form-group mb-3">
+                <input type="submit" value="Create" class="btn btn-primary" />
+                <a asp-action="Index" class="btn btn-secondary">Back to List</a>
+            </div>
+        </form>
+    </div>
+</div>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+    <script>
+        $(document).ready(function() {
+            let serviceIndex = 0;
+
+            // Add service button click
+            $("#add-service").click(function() {
+                serviceIndex++;
+                const serviceTemplate = `
+                <div class="service-detail-item row mb-3">
+                    <div class="col-md-5">
+                        <label class="control-label">Service</label>
+                        <select name="Details[${serviceIndex}].ServiceId" class="form-control" asp-items="ViewBag.Services"></select>
+                    </div>
+                    <div class="col-md-2">
+                        <label class="control-label">Quantity</label>
+                        <input name="Details[${serviceIndex}].Quantity" class="form-control" type="number" min="1" value="1" />
+                    </div>
+                    <div class="col-md-4">
+                        <label class="control-label">Notes</label>
+                        <input name="Details[${serviceIndex}].Notes" class="form-control" />
+                    </div>
+                    <div class="col-md-1 d-flex align-items-end">
+                        <button type="button" class="btn btn-danger remove-service">X</button>
+                    </div>
+                </div>`;
+
+                $("#service-details").append(serviceTemplate);
+
+                // Refresh the select lists
+                const newSelect = $(`select[name="Details[${serviceIndex}].ServiceId"]`);
+                newSelect.empty();
+        @foreach (var item in ViewBag.Services)
+        {
+            <text>newSelect.append($('<option></option>').val('@item.Value').text('@item.Text'));</text>
+        }
+            });
+
+            // Remove service button click (using event delegation)
+            $("#service-details").on("click", ".remove-service", function() {
+                $(this).closest(".service-detail-item").remove();
+            });
+        });
+    </script>
+}
